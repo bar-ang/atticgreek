@@ -1,5 +1,6 @@
 import requests
 import json
+import random
 
 with open("atticgreek.json", "r") as f:
     words = json.load(f)
@@ -16,6 +17,24 @@ for word in words:
     })
 
 DECK_NAME = "AtticGreekTAU"
+MODEL_NAME = "Basic"
+FRONT = "Front"
+BACK = "Back"
+
+notes = []
+for card in cards:
+    notes.append({
+        "deckName": DECK_NAME,
+        "modelName": MODEL_NAME,
+        "fields": {
+            FRONT: card["front"],
+            BACK: card["back"]
+        },
+        "tags": card["tags"],
+        "options": {
+             "allowDuplicate": True
+        }
+    })
 
 requests_to_send = [
     {
@@ -30,27 +49,16 @@ requests_to_send = [
         }
     },
     {
-        "action": "addNote",
+        "action": "addNotes",
         "version": 6,
         "params": {
-           "note": {
-                "deckName": DECK_NAME,
-                "modelName": "בסיסי",
-                "fields": {
-                    "Front": "SOCRATES",
-                    "Back": "He who knows that he knows nothing"
-                },
-                "tags": [
-                    "cool_guy"
-                ]
-            }
+           "notes": random.sample(notes, k=200)
         }
     }
 ]
 
 
 for req in requests_to_send:
-# Send to AnkiConnect
     response = requests.post('http://localhost:8765', json=req)
     print(response.json())
 
