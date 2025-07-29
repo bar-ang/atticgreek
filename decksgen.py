@@ -84,6 +84,30 @@ if response["error"]:
     print(f"FAILED TO ADD CARDS")
     sys.exit(-1)
 
+# ids = response["result"]
+# word_by_id = {word["lemma"] : id for id, word in zip(ids, words)}
+    
+# parts = set([word["part"] for word in words])
 
+# for i, part in enumerate(parts):
+#     words_by_part = [w["lemma"] for w in words if w["part"] == part]
+# #    print([id for word, id in word_by_id.items() if word in words_by_part])
+# #    import pdb; pdb.set_trace()
 
+#     for word in words_by_part:
+#         req = {
+#             "action": "setSpecificValueOfCard",
+#             "version": 6,
+#             "params": {
+#                 "card": word_by_id[word],
+#                 "keys": ["flags"],
+#                 "newValues" : [i+1] #Red flag (1=Red, 2=Orange, 3=Green, 4=Blue, etc...)
+#             }
+#         }
+#         response = requests.post('http://localhost:8765', json=req).json()
+#         print(response)
+#         if response["error"]:
+#             print(f"Failed to set flag {i} for word {word}")
+#             sys.exit(-1)
+    
     
