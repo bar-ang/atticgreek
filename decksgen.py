@@ -1,22 +1,35 @@
 import requests
 import json
 import random
+import sys
 
 with open("atticgreek.json", "r") as f:
     words = json.load(f)
 
-def format_meaning(meaning):
-    return ";  ".join([", ".join(mean) for mean in meaning])
+#words = random.sample(words, k = 80) # FOR DEBUG!
+
+def format_front(word): 
+    added = ""
+    if word["added"]:
+        added = f" ({word['added']})"
+    if word["rest"] and word["rest"][0]:
+        return f"{word["lemma"]};  {", ".join(word["rest"])}{added}"
+    else:
+        return word["lemma"] + added
+
+def format_back(word):
+    return ";  ".join([", ".join(mean) for mean in word["meaning"]])    
 
 cards = []
 for word in words:
     cards.append({
-        "front" : word["lemma"],
-        "back" : format_meaning(word["meaning"]),
+        "front" : format_front(word),
+        "back" : format_back(word),
         "tags" : [word["part"], f"unit_{word["unit"]}"]
+        
     })
 
-DECK_NAME = "AtticGreekTAU"
+DECK_NAME = "AtticGreekTAU_extended"
 MODEL_NAME = "Basic"
 FRONT = "Front"
 BACK = "Back"
@@ -41,24 +54,36 @@ requests_to_send = [
         "action": "modelNames",
         "version": 6
     },
-    {
-        "action": "createDeck",
-        "version": 6,
-        "params": {
-            "deck": DECK_NAME
-        }
-    },
-    {
-        "action": "addNotes",
-        "version": 6,
-        "params": {
-           "notes": random.sample(notes, k=200)
-        }
-    }
 ]
 
+req = {
+    "action": "createDeck",
+    "version": 6,
+    "params": {
+        "deck": DECK_NAME
+    }
+}
 
-for req in requests_to_send:
-    response = requests.post('http://localhost:8765', json=req)
-    print(response.json())
+response = requests.post('http://localhost:8765', json=req).json()
+print(response)
+if response["error"]:
+    print(f"FAILED TO MAKE DECK")
+    sys.exit(-1)
 
+req = {
+    "action": "addNotes",
+    "version": 6,
+    "params": {
+        "notes": notes
+    }
+}
+response = requests.post('http://localhost:8765', json=req).json()
+print("ALL CARDS ADDED!")
+if response["error"]:
+    print(response["error"])
+    print(f"FAILED TO ADD CARDS")
+    sys.exit(-1)
+
+
+
+    
