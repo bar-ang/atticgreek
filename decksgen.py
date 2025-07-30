@@ -18,9 +18,21 @@ def format_front(word):
         return word["lemma"] + added
 
 def format_back(word):
-    return ";  ".join([", ".join(mean) for mean in word["meaning"]])    
+    return ";  ".join([", ".join(mean) for mean in word["meaning"]])
+
+def format_verbs_front(word):
+    return word["lemma"]
+
+def format_verbs_back(word, num_princ_parts=3):
+    assert word["part"] == "v"
+    meaning = ";  ".join([", ".join(mean) for mean in word["meaning"]])
+    princ_parts = [word["lemma"]] + [princ for princ in word["rest"]]
+    if num_princ_parts and len(princ_parts) > num_princ_parts:
+        princ_parts = princ_parts[:num_princ_parts]
+    return ", ".join(princ_parts) + "<br>" + meaning
 
 cards = []
+verb_cards = []
 for word in words:
     cards.append({
         "front" : format_front(word),
@@ -28,14 +40,20 @@ for word in words:
         "tags" : [word["part"], f"unit_{word["unit"]}"]
         
     })
+    if word["part"] == "v":
+        verb_cards.append({
+            "front": format_verbs_front(word),
+            "back": format_verbs_back(word),
+            "tags": [f"unit_{word['unit']}"]
+        })        
 
-DECK_NAME = "AtticGreekTAU_extended"
+DECK_NAME = "AtticGreekTAU_principle_parts"
 MODEL_NAME = "Basic"
 FRONT = "Front"
 BACK = "Back"
 
 notes = []
-for card in cards:
+for card in verb_cards:
     notes.append({
         "deckName": DECK_NAME,
         "modelName": MODEL_NAME,
